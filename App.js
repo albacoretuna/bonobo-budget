@@ -1,5 +1,12 @@
 import React, { Component } from 'react'
-import { Text, View, StyleSheet, Modal, TouchableHighlight } from 'react-native'
+import {
+  Text,
+  View,
+  StyleSheet,
+  Modal,
+  TouchableHighlight,
+  Image,
+} from 'react-native'
 import { Constants } from 'expo'
 import DatePicker from 'react-native-datepicker'
 import {
@@ -116,12 +123,33 @@ export default class App extends Component {
           visible={this.state.modalVisible}
           onRequestClose={() => {}}
         >
-          <Text>Help</Text>
-          <Button
-            onPress={() => this._setModalVisible(false)}
-            title="Back"
-            backgroundColor="#397af8"
-          />
+          <View>
+            <Card title="About and Help">
+              <Text>
+                The bonobo is an endangered species. Here are two bonobos! The photo from Wikipedia.
+              </Text>
+              <Image
+                style={{ width: 150, height: 188, margin: 10}}
+                source={require('./images/bonobo.jpg')}
+              />
+              <Text>
+                Bonobo Budget is a simple budget manager. The idea is finding out how
+                much money you can spend each day, until your next paycheck arrives.
+              </Text>
+              <Text>
+                Enter how much money you got into Balance field, and then the
+                sum of all your bills and things you need to pay until your next
+                pay day in the Payables field, and set when is your next pay
+                day!
+              </Text>
+              <Button
+                onPress={() => this._setModalVisible(false)}
+                title="Back"
+                backgroundColor="#397af8"
+                buttonStyle={{marginTop: 10}}
+              />
+            </Card>
+          </View>
         </Modal>
       </View>
     )
