@@ -6,6 +6,7 @@ import {
   Modal,
   TouchableHighlight,
   Image,
+  AsyncStorage,
 } from 'react-native'
 import { Constants } from 'expo'
 import DatePicker from 'react-native-datepicker'
@@ -18,8 +19,17 @@ import {
   Button,
 } from 'react-native-elements'
 
-import moment from 'moment' // 2.19.1
-import '@expo/vector-icons' // 6.1.0
+import Storage from 'react-native-storage'
+import moment from 'moment'
+import '@expo/vector-icons'
+
+const storage = new Storage({
+  size: 1000,
+  storageBackend: AsyncStorage,
+  defaultExpires: null,
+  enableCache: true,
+})
+
 export default class App extends Component {
   state = {
     payables: 0,
@@ -27,20 +37,41 @@ export default class App extends Component {
     nextPayDay: moment().add(30, 'days'),
     modalVisible: false,
   }
-
-  _setModalVisible = visible => {
+  componentDidMount() {
+    storage
+      .load({
+        key: 'state',
+      })
+      .then(state => {
+        console.log(state)
+        state ? this.setState(state) : undefined
+      })
+      .catch(err => {})
+  }
+  persistStateToStorage = () => {
+    storage.save({
+      key: 'state',
+      data: this.state,
+      expires: null,
+    })
+  }
+  setModalVisible = visible => {
     this.setState({ modalVisible: visible })
+    this.persistStateToStorage()
   }
-  _handleBalanceChange = balance => {
+  handleBalanceChange = balance => {
     this.setState({ balance })
+    this.persistStateToStorage()
   }
 
-  _handleNextPayDayChange = nextPayDay => {
+  handleNextPayDayChange = nextPayDay => {
     this.setState({ nextPayDay: moment(nextPayDay) })
+    this.persistStateToStorage()
   }
 
-  _handlePayablesChange = payables => {
+  handlePayablesChange = payables => {
     this.setState({ payables })
+    this.persistStateToStorage()
   }
   render() {
     return (
@@ -49,7 +80,7 @@ export default class App extends Component {
           <Icon
             name="help"
             color="#ffffff"
-            onPress={() => this._setModalVisible(true)}
+            onPress={() => this.setModalVisible(true)}
           />
           <Text style={{ color: '#ffffff' }}>Bonobo Budget </Text>
           <Text>.</Text>
@@ -57,7 +88,7 @@ export default class App extends Component {
 
         <FormLabel>Balance €</FormLabel>
         <FormInput
-          onChangeText={this._handleBalanceChange}
+          onChangeText={this.handleBalanceChange}
           placeholder="How much money do you have?"
           value={this.state.balance.toString()}
           inputStyle={{
@@ -70,7 +101,7 @@ export default class App extends Component {
         <FormLabel>Payables (sum of all the bills and etc.)</FormLabel>
         <FormInput
           value={this.state.payables.toString()}
-          onChangeText={this._handlePayablesChange}
+          onChangeText={this.handlePayablesChange}
           inputStyle={{
             height: 44,
             padding: 8,
@@ -81,7 +112,7 @@ export default class App extends Component {
         <FormLabel labelStyle={{ marginBottom: 10 }}>Next pay day:</FormLabel>
         <DatePicker
           style={{ width: 200 }}
-          date={this.state.nextPayDay.format('YYYY-MM-DD')}
+          date={moment(this.state.nextPayDay).format('YYYY-MM-DD')}
           mode="date"
           placeholder="select date"
           format="YYYY-MM-DD"
@@ -101,6 +132,7 @@ export default class App extends Component {
           }}
           onDateChange={date => {
             this.setState({ nextPayDay: moment(date) })
+            this.persistStateToStorage()
           }}
         />
         <Card containerStyle={styles.results}>
@@ -108,13 +140,13 @@ export default class App extends Component {
           <Text style={styles.allowance}>
             {Math.floor(
               (this.state.balance - this.state.payables) /
-                this.state.nextPayDay.diff(moment(), 'days', false),
+                moment(this.state.nextPayDay).diff(moment(), 'days', false),
             )}{' '}
             €
           </Text>
           <Text style={styles.title}>
             Next pay day is in{' '}
-            {this.state.nextPayDay.diff(moment(), 'days', false)} days
+            {moment(this.state.nextPayDay).diff(moment(), 'days', false)} days
           </Text>
         </Card>
         <Modal
@@ -123,32 +155,32 @@ export default class App extends Component {
           visible={this.state.modalVisible}
           onRequestClose={() => {}}
         >
-          <View>
-            <Card title="About and Help">
-              <Text>
-                The bonobo is an endangered species. Here are two bonobos! The photo from Wikipedia.
-              </Text>
-              <Image
-                style={{ width: 150, height: 188, margin: 10}}
-                source={require('./images/bonobo.jpg')}
-              />
-              <Text>
-                Bonobo Budget is a simple budget manager. The idea is finding out how
-                much money you can spend each day, until your next paycheck arrives.
-              </Text>
-              <Text>
-                Enter how much money you got into Balance field, and then the
-                sum of all your bills and things you need to pay until your next
-                pay day in the Payables field, and set when is your next pay
-                day!
-              </Text>
-              <Button
-                onPress={() => this._setModalVisible(false)}
-                title="Back"
-                backgroundColor="#397af8"
-                buttonStyle={{marginTop: 10}}
-              />
-            </Card>
+          <View style={styles.helpContainer}>
+            <Text>
+              The bonobo is an endangered species. Here are two bonobos! The
+              photo is from Wikipedia.
+            </Text>
+
+            <Image
+              style={{ width: 150, height: 188, margin: 10 }}
+              source={require('./images/bonobo.jpg')}
+            />
+            <Text>
+              Bonobo Budget is a simple budget manager. The idea is finding out
+              how much money you can spend each day, until your next paycheck
+              arrives.
+            </Text>
+            <Text>
+              Enter how much money you got into Balance field, and then the sum
+              of all your bills and things you need to pay until your next pay
+              day in the Payables field, and set when is your next pay day!
+            </Text>
+            <Button
+              onPress={() => this.setModalVisible(false)}
+              title="Back"
+              backgroundColor="#397af8"
+              buttonStyle={{ marginTop: 10 }}
+            />
           </View>
         </Modal>
       </View>
@@ -163,6 +195,9 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'flex-start',
     paddingTop: Constants.statusBarHeight,
+  },
+  helpContainer: {
+    margin: 10,
   },
   title: {
     marginLeft: 20,
