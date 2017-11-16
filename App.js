@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import {
-  Text,
   View,
   StyleSheet,
   Modal,
@@ -11,6 +10,7 @@ import {
 import { Constants } from 'expo'
 import DatePicker from 'react-native-datepicker'
 import {
+  Text,
   Header,
   FormLabel,
   FormInput,
@@ -32,7 +32,7 @@ const storage = new Storage({
 
 export default class App extends Component {
   state = {
-    payables: 0,
+    payables: 10,
     balance: 100,
     nextPayDay: moment().add(30, 'days'),
     modalVisible: false,
@@ -43,17 +43,22 @@ export default class App extends Component {
         key: 'state',
       })
       .then(state => {
-        console.log(state)
-        state ? this.setState(state) : undefined
+        if (state) this.setState(state)
       })
-      .catch(err => {})
+      .catch(err => {
+        console.warn(err)
+      })
   }
   persistStateToStorage = () => {
-    storage.save({
-      key: 'state',
-      data: this.state,
-      expires: null,
-    })
+    setTimeout(
+      () =>
+        storage.save({
+          key: 'state',
+          data: this.state,
+          expires: null,
+        }),
+      100,
+    )
   }
   setModalVisible = visible => {
     this.setState({ modalVisible: visible })
@@ -156,31 +161,44 @@ export default class App extends Component {
           onRequestClose={() => {}}
         >
           <View style={styles.helpContainer}>
+            <Button
+              onPress={() => this.setModalVisible(false)}
+              title="BACK TO MAIN VIEW"
+              backgroundColor="#397af8"
+              buttonStyle={{ marginLeft: -15, marginBottom: 5}}
+              icon={{name: 'arrow-back'}}
+            />
+            <Text h4>
+              About
+            </Text>
             <Text>
-              The bonobo is an endangered species. Here are two bonobos! The
+              The bonobo is an endangered species. Here are two bonobos! This
               photo is from Wikipedia.
             </Text>
 
             <Image
-              style={{ width: 150, height: 188, margin: 10 }}
+              style={{ width: 150, height: 188, margin: 10, alignSelf: 'center' }}
               source={require('./images/bonobo.jpg')}
             />
+            <Text h4>
+              How it works
+            </Text>
             <Text>
-              Bonobo Budget is a simple budget manager. The idea is finding out
+              Bonobo Budget is a simple budget manager. Find out
               how much money you can spend each day, until your next paycheck
               arrives.
             </Text>
             <Text>
-              Enter how much money you got into Balance field, and then the sum
-              of all your bills and things you need to pay until your next pay
-              day in the Payables field, and set when is your next pay day!
+              1. Enter how much money you got into Balance field. 2. Enter sum
+              of all your bills until your next pay
+              day in the Payables field and 3. Set your next pay day.
             </Text>
-            <Button
-              onPress={() => this.setModalVisible(false)}
-              title="Back"
-              backgroundColor="#397af8"
-              buttonStyle={{ marginTop: 10 }}
-            />
+            <Text h4>
+              Credits
+            </Text>
+            <Text>
+              Logo Icon: https://commons.wikimedia.org/wiki/File:Monkey.svg
+            </Text>
           </View>
         </Modal>
       </View>
@@ -198,6 +216,12 @@ const styles = StyleSheet.create({
   },
   helpContainer: {
     margin: 10,
+    marginTop: 0,
+    flex: 1,
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    paddingTop: Constants.statusBarHeight,
   },
   title: {
     marginLeft: 20,
