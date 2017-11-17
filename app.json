@@ -2,14 +2,16 @@
    "expo": {
     "name": "bonobo budget",
     "icon": "./images/monkey.png",
-    "version": "1.0.0",
+    "version": "3.0.0",
     "slug": "bonobo-easy-budget",
     "sdkVersion": "22.0.0",
     "ios": {
       "bundleIdentifier": "ax.js.bonobobudget"
     },
     "android": {
-      "package": "ax.js.bonobobudget"
+      "package": "ax.js.bonobobudget",
+      "versionCode": 3,
+      "permissions": [""]
     }
    }
  }
