@@ -36,6 +36,8 @@ export default class App extends Component {
     balance: 100,
     nextPayDay: moment().add(30, 'days'),
     modalVisible: false,
+    allowance: 0,
+    daysToNextPayDay: 30,
   }
   componentDidMount() {
     storage
@@ -48,6 +50,10 @@ export default class App extends Component {
       .catch(err => {
         console.warn(err)
       })
+    setInterval(() => {
+      this.calculateAllowance()
+      this.calculateDaysToNextPayDay()
+    }, 1000)
   }
   persistStateToStorage = () => {
     setTimeout(
@@ -59,6 +65,23 @@ export default class App extends Component {
         }),
       100,
     )
+  }
+
+  calculateAllowance = () => {
+    let allowance = Math.floor(
+      (this.state.balance - this.state.payables) /
+        moment(this.state.nextPayDay).diff(moment(), 'days', false),
+    )
+    this.setState({ allowance })
+  }
+  calculateDaysToNextPayDay = () => {
+    this.setState({
+      daysToNextPayDay: moment(this.state.nextPayDay).diff(
+        moment(),
+        'days',
+        false,
+      ),
+    })
   }
   setModalVisible = visible => {
     this.setState({ modalVisible: visible })
@@ -143,15 +166,10 @@ export default class App extends Component {
         <Card containerStyle={styles.results}>
           <Text style={styles.title}>Each day you can spend: </Text>
           <Text style={styles.allowance}>
-            {Math.floor(
-              (this.state.balance - this.state.payables) /
-                moment(this.state.nextPayDay).diff(moment(), 'days', false),
-            )}{' '}
-            €
+            {this.state.allowance} €
           </Text>
           <Text style={styles.title}>
-            Next pay day is in{' '}
-            {moment(this.state.nextPayDay).diff(moment(), 'days', false)} days
+            Next pay day is in {this.state.daysToNextPayDay} days
           </Text>
         </Card>
         <Modal
@@ -165,37 +183,35 @@ export default class App extends Component {
               onPress={() => this.setModalVisible(false)}
               title="BACK TO MAIN VIEW"
               backgroundColor="#397af8"
-              buttonStyle={{ marginLeft: -15, marginBottom: 5}}
-              icon={{name: 'arrow-back'}}
+              buttonStyle={{ marginLeft: -15, marginBottom: 5 }}
+              icon={{ name: 'arrow-back' }}
             />
-            <Text h4>
-              About
-            </Text>
+            <Text h4>About</Text>
             <Text>
               The bonobo is an endangered species. Here are two bonobos! This
               photo is from Wikipedia.
             </Text>
 
             <Image
-              style={{ width: 150, height: 188, margin: 10, alignSelf: 'center' }}
+              style={{
+                width: 150,
+                height: 188,
+                margin: 10,
+                alignSelf: 'center',
+              }}
               source={require('./images/bonobo.jpg')}
             />
-            <Text h4>
-              How it works
-            </Text>
+            <Text h4>How it works</Text>
             <Text>
-              Bonobo Budget is a simple budget manager. Find out
-              how much money you can spend each day, until your next paycheck
-              arrives.
+              Bonobo Budget is a simple budget manager. Find out how much money
+              you can spend each day, until your next paycheck arrives.
             </Text>
             <Text>
               1. Enter how much money you got into Balance field. 2. Enter sum
-              of all your bills until your next pay
-              day in the Payables field and 3. Set your next pay day.
+              of all your bills until your next pay day in the Payables field
+              and 3. Set your next pay day.
             </Text>
-            <Text h4>
-              Credits
-            </Text>
+            <Text h4>Credits</Text>
             <Text>
               Logo Icon: https://commons.wikimedia.org/wiki/File:Monkey.svg
             </Text>
