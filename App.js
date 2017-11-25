@@ -118,6 +118,7 @@ export default class App extends Component {
         <FormInput
           onChangeText={this.handleBalanceChange}
           placeholder="How much money do you have?"
+          keyboardType="numeric"
           value={this.state.balance.toString()}
           inputStyle={{
             height: 44,
@@ -130,6 +131,7 @@ export default class App extends Component {
         <FormInput
           value={this.state.payables.toString()}
           onChangeText={this.handlePayablesChange}
+          keyboardType="numeric"
           inputStyle={{
             height: 44,
             padding: 8,
@@ -214,6 +216,10 @@ export default class App extends Component {
             <Text h4>Credits</Text>
             <Text>
               Logo Icon: https://commons.wikimedia.org/wiki/File:Monkey.svg
+            </Text>
+            <Text>
+              Bonobo Budget is open source, help us improve it:
+              https://github.com/omidfi/bonobo-budget/
             </Text>
           </View>
         </Modal>
