@@ -2,7 +2,7 @@
    "expo": {
     "name": "bonobo budget",
     "icon": "./images/monkey.png",
-    "version": "3.0.0",
+    "version": "4.0.0",
     "slug": "bonobo-easy-budget",
     "sdkVersion": "22.0.0",
     "ios": {
@@ -10,7 +10,7 @@
     },
     "android": {
       "package": "ax.js.bonobobudget",
-      "versionCode": 3,
+      "versionCode": 4,
       "permissions": [""]
     }
    }
